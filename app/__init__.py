@@ -21,7 +21,8 @@ def _load_or_create_secret_key(instance_path: Path) -> str:
     except FileNotFoundError:
         key = secrets.token_urlsafe(48)
         try:
-            key_path.write_text(key, encoding="utf-8")
+            with key_path.open("x", encoding="utf-8") as key_file:
+                key_file.write(key)
         except FileExistsError:
             return key_path.read_text(encoding="utf-8").strip()
         return key
