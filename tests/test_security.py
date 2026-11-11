@@ -3,6 +3,17 @@ from pathlib import Path
 from app import _load_or_create_secret_key
 
 
+def test_chave_de_ambiente_tem_precedencia_e_nao_cria_arquivo(
+    tmp_path: Path, monkeypatch
+):
+    monkeypatch.setenv("SECRET_KEY", "chave-configurada-no-ambiente")
+
+    key = _load_or_create_secret_key(tmp_path)
+
+    assert key == "chave-configurada-no-ambiente"
+    assert not (tmp_path / ".secret_key").exists()
+
+
 def test_chave_local_e_criada_e_reutilizada(tmp_path: Path, monkeypatch):
     monkeypatch.delenv("SECRET_KEY", raising=False)
     monkeypatch.setattr("app.secrets.token_urlsafe", lambda _length: "chave-gerada-para-teste")

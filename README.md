@@ -45,3 +45,7 @@ python -m pytest
 ```
 
 Os testes usam um banco SQLite temporário e preservam o banco local do projeto.
+
+## Integração contínua
+
+O GitHub Actions executa os testes a cada push e nos Pull Requests direcionados à branch `main`. O pipeline prepara o Python 3.12, instala as dependências e gera o relatório de cobertura com pytest-cov. Os testes usam bancos temporários; o workflow não precisa de senhas nem de chaves secretas.
