@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#10233f">
+    <title>{% block title %}Gestão Comercial{% endblock %} | Jay Marques</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <button class="sidebar-scrim" type="button" aria-label="Fechar menu" data-sidebar-close></button>
+    <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+        <a class="brand" href="{{ url_for('dashboard.index') }}" aria-label="Jay Marques, início">
+            <span class="brand-mark">JM</span>
+            <span class="brand-copy"><strong>Jay Marques</strong><small>GESTÃO COMERCIAL</small></span>
+        </a>
+
+        <div class="nav-section-label">ESPAÇO DE TRABALHO</div>
+        <nav class="main-nav">
+            <a class="nav-link active" href="{{ url_for('dashboard.index') }}" aria-current="page">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="5" rx="2"/><rect x="13" y="10" width="8" height="11" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/></svg>
+                <span>Visão geral</span>
+            </a>
+        </nav>
+        <div class="nav-section-label nav-section-spaced">GESTÃO</div>
+        <nav class="main-nav" aria-label="Módulos planejados">
+            <span class="nav-link nav-link-pending"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16l-1.5 13h-13L4 7Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg><span>Produtos e estoque</span><small>FASE 3</small></span>
+            <span class="nav-link nav-link-pending"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 5.5a3 3 0 0 1 0 5.8M17 14a5 5 0 0 1 3.5 4.8"/></svg><span>Clientes</span><small>FASE 4</small></span>
+            <span class="nav-link nav-link-pending"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h2l2.2 10.5a2 2 0 0 0 2 1.5h8.2a2 2 0 0 0 1.9-1.4L21 9H7"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg><span>Vendas</span><small>FASE 5</small></span>
+            <span class="nav-link nav-link-pending"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/></svg><span>Financeiro</span><small>FASE 7</small></span>
+            <span class="nav-link nav-link-pending"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h17M8 15l4-4 3 2 5-7"/></svg><span>Relatórios</span><small>FASE 7</small></span>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="sidebar-note"><span class="status-dot"></span><span>Ambiente local<br><small>Preparado para configuração</small></span></div>
+            <div class="sidebar-version">JAY MARQUES <span>•</span> VERSÃO INICIAL</div>
+        </div>
+    </aside>
+
+    <div class="app-shell">
+        <header class="topbar">
+            <button class="menu-toggle" type="button" aria-label="Abrir menu" aria-controls="sidebar" aria-expanded="false" data-sidebar-open>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <div class="breadcrumb"><span>Gestão Comercial</span><span class="breadcrumb-divider">/</span><strong>{% block page_name %}Visão geral{% endblock %}</strong></div>
+            <div class="topbar-right"><span class="topbar-date">{{ today }}</span><span class="avatar" aria-label="Jay Marques">JM</span></div>
+        </header>
+
+        <main class="page-content">
+            {% block content %}{% endblock %}
+            <footer class="page-footer"><span>Jay Marques — Gestão Comercial</span><span>Estrutura inicial <b>•</b> dados reais serão exibidos conforme os módulos forem implementados</span></footer>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+</html>
