@@ -1,31 +1,31 @@
 # Sistema de Gestão Comercial Jay Marques
 
-Aplicação web em português brasileiro para apoiar a gestão comercial da Jay Marques. O projeto está sendo desenvolvido por etapas; esta versão entrega a estrutura Flask, o painel inicial e a configuração do banco local.
+Este projeto está sendo criado para ajudar a organizar a rotina comercial da Jay Marques. A ideia é reunir, em um só lugar, informações sobre produtos, estoque, clientes, vendas e finanças.
+
+## Como está o projeto
+
+O sistema está em desenvolvimento. Hoje, já conta com uma aplicação Flask, um painel inicial responsivo e testes automatizados para a página principal e seus estados vazios. Quando ainda não há dados, o painel deixa isso claro em vez de mostrar números fictícios.
+
+Os cadastros e as operações de produtos, estoque, clientes, vendas e financeiro ainda estão sendo construídos. Por isso, esta versão serve para desenvolvimento e demonstração; ainda não está pronta para controlar a operação real de uma loja.
+
+## O que vem pela frente
+
+- Cadastro de produtos e controle de estoque.
+- Cadastro de clientes.
+- Registro de vendas.
+- Acompanhamento financeiro e relatórios.
+- Acesso protegido para quem usa o sistema.
 
 ## Tecnologias
 
-- Python 3.12
-- Flask 3.x com padrão de fábrica de aplicação e Blueprint
-- Flask-SQLAlchemy e SQLAlchemy
-- Flask-Login (extensão configurada; telas e rotas de acesso entram na Fase 2)
-- SQLite
-- HTML5, CSS3, JavaScript e Bootstrap 5.3
+- Python 3.12 e Flask.
+- SQLite com Flask-SQLAlchemy.
+- HTML, CSS, JavaScript e Bootstrap.
+- pytest para os testes automatizados.
 
-## Estado do projeto
+## Como executar no Windows
 
-### Fase 1 — concluída
-
-- Configuração centralizada em `config.py`.
-- Extensões e fábrica de aplicação em `app/extensions.py` e `app/__init__.py`.
-- Banco SQLite local criado em `instance/gestao_comercial.sqlite`.
-- Painel responsivo, navegação lateral e identidade visual Jay Marques.
-- Data apresentada no formato `DD/MM/AAAA` e fuso horário de São Paulo.
-
-Os módulos de produtos, estoque, clientes, vendas, indicadores financeiros, autenticação de telas, relatórios e exportação ainda não foram implementados. O painel não exibe dados fictícios.
-
-## Executar no Windows
-
-Na pasta do projeto, crie e ative um ambiente virtual com Python 3.12:
+Com Python 3.12 instalado, abra o PowerShell na pasta do projeto e execute:
 
 ```powershell
 py -3.12 -m venv .venv
@@ -34,24 +34,14 @@ python -m pip install -r requirements.txt
 python run.py
 ```
 
-Abra http://127.0.0.1:5000 no navegador. O banco SQLite e uma chave de sessão gerada aleatoriamente são criados na pasta `instance/` na primeira execução. Para configurar uma chave própria, defina a variável de ambiente `SECRET_KEY` antes de iniciar o servidor.
+Depois, abra [http://127.0.0.1:5000](http://127.0.0.1:5000) no navegador.
 
-## Testes automatizados
+## Como executar os testes
 
-Instale as dependências e execute a suíte com:
+Com o ambiente virtual ativado, rode:
 
 ```powershell
-python -m pip install -r requirements.txt
 python -m pytest
 ```
 
-Os testes usam arquivos SQLite temporários criados pelo `tmp_path` do pytest. Eles não leem nem alteram o banco de dados local em `instance/gestao_comercial.sqlite`.
-
-## Configuração
-
-- `SECRET_KEY`: chave de sessão opcional. Se ausente, é gerada e armazenada localmente em `instance/.secret_key`.
-- `DATABASE_URL`: URI SQLAlchemy opcional; por padrão, usa SQLite em `instance/gestao_comercial.sqlite`.
-
-## Próximas etapas
-
-A Fase 2 depende de autorização para iniciar. Ainda não há modelo de usuário, administrador padrão ou tela de acesso.
+Os testes usam um banco SQLite temporário e preservam o banco local do projeto.
