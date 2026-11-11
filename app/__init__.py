@@ -32,11 +32,11 @@ def create_app(test_config: dict | None = None) -> Flask:
     Path(app.instance_path).mkdir(parents=True, exist_ok=True)
 
     app.config.from_object("config.Config")
+    if test_config is not None:
+        app.config.update(test_config)
     app.config["SECRET_KEY"] = app.config.get("SECRET_KEY") or _load_or_create_secret_key(
         Path(app.instance_path)
     )
-    if test_config:
-        app.config.update(test_config)
 
     db.init_app(app)
     login_manager.init_app(app)

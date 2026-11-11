@@ -36,6 +36,17 @@ python run.py
 
 Abra http://127.0.0.1:5000 no navegador. O banco SQLite e uma chave de sessão gerada aleatoriamente são criados na pasta `instance/` na primeira execução. Para configurar uma chave própria, defina a variável de ambiente `SECRET_KEY` antes de iniciar o servidor.
 
+## Testes automatizados
+
+Instale as dependências e execute a suíte com:
+
+```powershell
+python -m pip install -r requirements.txt
+python -m pytest
+```
+
+Os testes usam arquivos SQLite temporários criados pelo `tmp_path` do pytest. Eles não leem nem alteram o banco de dados local em `instance/gestao_comercial.sqlite`.
+
 ## Configuração
 
 - `SECRET_KEY`: chave de sessão opcional. Se ausente, é gerada e armazenada localmente em `instance/.secret_key`.
