@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_name %}{{ title }}{% endblock %}
+{% block content %}
+<section class="module-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> CATÁLOGO</div><h1>{{ title }}</h1><p class="page-intro">Preencha as informações do produto. Os campos com * são obrigatórios.</p></div><a class="btn btn-outline-secondary" href="{{ url_for('products.index') }}">Voltar ao catálogo</a></section>
+<form class="panel-card product-form" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="form-grid">
+<label>Nome do produto *<input class="form-control" name="name" maxlength="120" required value="{{ values.get('name', product.name if product else '') }}"></label>
+<label>Categoria *<input class="form-control" name="category" maxlength="80" required value="{{ values.get('category', product.category if product else '') }}"></label>
+<label>Preço de custo (R$) *<input class="form-control" type="number" name="cost_price" min="0" step="0.01" required value="{{ values.get('cost_price', product.cost_price if product else '') }}"></label>
+<label>Preço de venda (R$) *<input class="form-control" type="number" name="selling_price" min="0" step="0.01" required value="{{ values.get('selling_price', product.selling_price if product else '') }}"></label>
+{% if not product %}<label>Quantidade inicial *<input class="form-control" type="number" name="stock_quantity" min="0" step="1" required value="{{ values.get('stock_quantity', '0') }}"><small>Esse saldo será registrado como entrada inicial.</small></label>{% else %}<div class="field-note"><strong>Estoque atual: {{ product.stock_quantity }}</strong><small>Use a tela do produto para registrar entradas e saídas.</small></div>{% endif %}
+<label>Estoque mínimo *<input class="form-control" type="number" name="minimum_stock" min="0" step="1" required value="{{ values.get('minimum_stock', product.minimum_stock if product else '0') }}"><small>Você receberá um alerta quando o saldo atingir esse nível.</small></label>
+<label class="form-wide">Descrição<textarea class="form-control" name="description" rows="4" maxlength="5000">{{ values.get('description', product.description if product else '') }}</textarea></label>
+</div><div class="form-actions"><a class="btn btn-outline-secondary" href="{{ url_for('products.index') }}">Cancelar</a><button class="btn btn-primary" type="submit">{{ 'Salvar alterações' if product else 'Cadastrar produto' }}</button></div></form>
+{% endblock %}

@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Remover produto{% endblock %}
+{% block page_name %}Remover produto{% endblock %}
+{% block content %}
+<section class="module-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> CONFIRMAÇÃO</div><h1>Remover produto do catálogo?</h1><p class="page-intro">Revise antes de confirmar esta ação.</p></div></section>
+<section class="panel-card confirm-card"><p>O produto <strong>{{ product.name }}</strong> ({{ product.code }}) deixará de aparecer no catálogo ativo. O histórico de movimentações será preservado.</p><form method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="form-actions"><a class="btn btn-outline-secondary" href="{{ url_for('products.detail', product_id=product.id) }}">Cancelar</a><button class="btn btn-danger" type="submit">Confirmar remoção</button></div></form></section>
+{% endblock %}

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f8f6fa">
+    <title>Entrar | Jay Marques</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script>
+        try {
+            const storedTheme = localStorage.getItem("jay-marques-theme");
+            if (storedTheme === "dark" || storedTheme === "light") document.documentElement.dataset.theme = storedTheme;
+        } catch (_error) { /* A tela continua disponível com o tema claro padrão. */ }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="login-page">
+    <main class="login-shell">
+        <div class="login-tools">
+            <div class="accessibility-toolbar" role="group" aria-label="Controles de acessibilidade">
+                <button class="a11y-button font-control" type="button" data-font-decrease aria-label="Diminuir tamanho da fonte" title="Diminuir fonte">A−</button>
+                <button class="a11y-button font-control" type="button" data-font-reset aria-label="Restaurar tamanho padrão da fonte" title="Restaurar fonte">A</button>
+                <button class="a11y-button font-control" type="button" data-font-increase aria-label="Aumentar tamanho da fonte" title="Aumentar fonte">A+</button>
+                <button class="a11y-button theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Tema claro ativo. Ativar tema escuro" title="Ativar tema escuro">
+                    <svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42"/></svg>
+                    <svg class="theme-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 15.5A8.5 8.5 0 0 1 8.5 3.5 8.5 8.5 0 1 0 20.5 15.5Z"/><path d="M16 3v3m-1.5-1.5h3"/></svg>
+                    <span class="visually-hidden" data-theme-label>Ativar tema escuro</span>
+                </button>
+            </div>
+            <span class="visually-hidden" data-a11y-status aria-live="polite" aria-atomic="true"></span>
+        </div>
+
+        <section class="login-card" aria-labelledby="login-title">
+            <a class="login-logo-link" href="{{ url_for('auth.login') }}" aria-label="Marques Stores — página de acesso">
+                <span class="brand-logo-frame login-logo-frame"><img src="{{ url_for('static', filename='img/marques-stores-reference.jpeg') }}" alt="Marques Stores" class="brand-logo"></span>
+            </a>
+            <p class="login-eyebrow">ÁREA RESTRITA</p>
+            <h1 id="login-title">Acesse sua gestão</h1>
+            <p class="login-intro">Entre com a conta administrativa da Jay Marques.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}<div class="flash-stack login-flashes" role="status" aria-live="polite">{% for category, message in messages %}<div class="alert alert-{{ category }}" role="alert">{{ message }}</div>{% endfor %}</div>{% endif %}
+            {% endwith %}
+
+            <form class="login-form" method="post" action="{{ url_for('auth.login') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label for="username">Usuário</label>
+                <input class="form-control" type="text" id="username" name="username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="50" required autofocus>
+                <label for="password">Senha</label>
+                <div class="password-field">
+                    <input class="form-control" type="password" id="password" name="password" autocomplete="current-password" required>
+                    <button class="password-toggle" type="button" data-password-toggle aria-controls="password" aria-pressed="false" aria-label="Mostrar senha">Mostrar</button>
+                </div>
+                <button class="btn btn-primary login-submit" type="submit">Entrar</button>
+            </form>
+            <p class="login-privacy">Acesso exclusivo da proprietária. Não compartilhe sua senha.</p>
+        </section>
+        <footer class="login-footer">Jay Marques · Gestão Comercial<br><span>Desenvolvido por Krysthian</span></footer>
+    </main>
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</body>
+</html>
