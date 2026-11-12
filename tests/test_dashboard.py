@@ -17,7 +17,7 @@ def test_app_inicia_em_modo_de_testes_com_sqlite_temporario(app, tmp_path: Path)
     assert database_path.parent == tmp_path.resolve()
     assert database_path.name == "test.sqlite"
     assert database_path.is_file()
-    assert tables == []
+    assert tables == ["products", "stock_movements", "users"]
 
 
 def test_rota_principal_responde_com_pagina_do_dashboard(client):
@@ -43,11 +43,12 @@ def test_dashboard_sem_registros_exibe_estados_vazios(client, app):
     page = response.get_data(as_text=True)
 
     with app.app_context():
-        assert inspect(db.engine).get_table_names() == []
+        assert inspect(db.engine).get_table_names() == ["products", "stock_movements", "users"]
 
     assert "aguardando os primeiros registros" in page
     assert "Nenhuma atividade por enquanto" in page
-    assert page.count('<div class="metric-value">—</div>') == 4
+    assert '<div class="metric-value">0</div>' in page
+    assert page.count('<div class="metric-value">—</div>') == 3
 
 
 def test_configuracao_de_teste_com_chave_propria_nao_carrega_chave_local(monkeypatch):

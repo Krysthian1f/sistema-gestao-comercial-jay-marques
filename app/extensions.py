@@ -6,3 +6,4 @@ login_manager = LoginManager()
 login_manager.login_view = "auth.login"
 login_manager.login_message = "Entre no sistema para continuar."
 login_manager.login_message_category = "info"
+login_manager.session_protection = "strong"
