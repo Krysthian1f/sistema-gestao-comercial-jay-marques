@@ -17,7 +17,7 @@ def test_app_inicia_em_modo_de_testes_com_sqlite_temporario(app, tmp_path: Path)
     assert database_path.parent == tmp_path.resolve()
     assert database_path.name == "test.sqlite"
     assert database_path.is_file()
-    assert tables == ["products", "stock_movements", "users"]
+    assert tables == ["customers", "financial_entries", "products", "sale_items", "sales", "stock_movements", "users"]
 
 
 def test_rota_principal_responde_com_pagina_do_dashboard(client):
@@ -43,12 +43,54 @@ def test_dashboard_sem_registros_exibe_estados_vazios(client, app):
     page = response.get_data(as_text=True)
 
     with app.app_context():
-        assert inspect(db.engine).get_table_names() == ["products", "stock_movements", "users"]
+        assert inspect(db.engine).get_table_names() == [
+            "customers", "financial_entries", "products", "sale_items", "sales", "stock_movements", "users"
+        ]
 
-    assert "aguardando os primeiros registros" in page
+    assert "atualizado com os dados cadastrados" in page
     assert "Nenhuma atividade por enquanto" in page
     assert '<div class="metric-value">0</div>' in page
-    assert page.count('<div class="metric-value">—</div>') == 3
+    assert "Clientes ativos cadastrados" in page
+    assert "Vendas registradas" in page
+
+
+def test_health_publico_confirma_conexao_com_banco(anonymous_client):
+    response = anonymous_client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json == {"status": "ok", "database": "available"}
+
+
+def test_dashboard_mostra_contagens_reais_dos_modulos(client, app):
+    from decimal import Decimal
+
+    from app.models import Customer, FinancialEntry, Product, Sale
+
+    with app.app_context():
+        db.session.add(Product(
+            code="JM-DASH-001", name="Bolsa", category="Roupas", description="",
+            cost_price=Decimal("20"), selling_price=Decimal("35"), stock_quantity=2, minimum_stock=1,
+        ))
+        db.session.add(Customer(name="Bia", phone="11999990000", normalized_phone="11999990000"))
+        sale = Sale(
+            code="JM-V-DASH001", idempotency_key="cb2b609b-6a0b-4f2a-995a-302fc9bf2abc",
+            customer_name="Bia", payment_method="pix", total_amount=Decimal("35"),
+        )
+        db.session.add(sale)
+        db.session.flush()
+        db.session.add(FinancialEntry(
+            kind="receita", category="Venda", description="Recebimento venda",
+            amount=Decimal("35"), occurred_at=sale.created_at, sale=sale,
+        ))
+        db.session.commit()
+
+    response = client.get("/")
+    content = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert "Clientes ativos cadastrados" in content
+    assert "Vendas registradas" in content
+    assert "R$ 35,00" in content
 
 
 def test_configuracao_de_teste_com_chave_propria_nao_carrega_chave_local(monkeypatch):

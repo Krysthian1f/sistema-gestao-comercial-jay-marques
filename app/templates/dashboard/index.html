@@ -15,11 +15,11 @@
 
 <section class="setup-banner" aria-labelledby="setup-title">
     <div class="setup-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3.8 7.5v9L12 21l8.2-4.5v-9L12 3Z"/><path d="m8 12 2.5 2.5L16.5 9"/></svg></div>
-    <div class="setup-copy"><span class="banner-kicker">PRODUTOS E ESTOQUE ATIVOS</span><h2 id="setup-title">Seu catálogo está pronto para uso.</h2><p>Cadastre produtos, acompanhe os níveis de estoque e registre cada entrada e saída. Clientes, vendas e financeiro serão desenvolvidos em etapas futuras.</p></div>
-    <div class="setup-progress"><span>PROGRESSO DO PROJETO</span><div class="progress-track"><i style="width: 38%"></i></div><small>Produtos e estoque disponíveis</small></div>
+    <div class="setup-copy"><span class="banner-kicker">GESTÃO COMERCIAL</span><h2 id="setup-title">Acompanhe a operação da loja.</h2><p>Os indicadores e atividades abaixo refletem os registros salvos neste sistema.</p></div>
+    <div class="setup-progress"><span>ACESSO</span><div class="progress-track"><i style="width: 100%"></i></div><small>Conta administrativa autenticada</small></div>
 </section>
 
-<section class="section-heading"><div><span class="eyebrow">ACOMPANHAMENTO</span><h2>Resumo do sistema</h2></div><span class="data-hint"><span class="status-dot"></span> aguardando os primeiros registros</span></section>
+<section class="section-heading"><div><span class="eyebrow">ACOMPANHAMENTO</span><h2>Resumo do sistema</h2></div><span class="data-hint"><span class="status-dot"></span> atualizado com os dados cadastrados</span></section>
 
 <section class="metric-grid" aria-label="Indicadores do sistema">
     <article class="metric-card">
@@ -28,32 +28,26 @@
     </article>
     <article class="metric-card">
         <div class="metric-top"><span class="metric-icon icon-violet"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 5.5a3 3 0 0 1 0 5.8M17 14a5 5 0 0 1 3.5 4.8"/></svg></span><span class="metric-label">CLIENTES</span></div>
-        <div class="metric-value">—</div><div class="metric-foot">Disponível na Fase 4</div>
+        <div class="metric-value">{{ customer_count }}</div><div class="metric-foot">Clientes ativos cadastrados</div>
     </article>
     <article class="metric-card">
         <div class="metric-top"><span class="metric-icon icon-green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h2l2.2 10.5a2 2 0 0 0 2 1.5h8.2a2 2 0 0 0 1.9-1.4L21 9H7"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg></span><span class="metric-label">VENDAS</span></div>
-        <div class="metric-value">—</div><div class="metric-foot">Disponível na Fase 5</div>
+        <div class="metric-value">{{ sales_count }}</div><div class="metric-foot">Vendas registradas</div>
     </article>
     <article class="metric-card">
         <div class="metric-top"><span class="metric-icon icon-amber"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M17 6H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span class="metric-label">FATURAMENTO</span></div>
-        <div class="metric-value">—</div><div class="metric-foot">Disponível na Fase 6</div>
+        <div class="metric-value">R$ {{ '%.2f'|format(revenue)|replace('.', ',') }}</div><div class="metric-foot">Saldo financeiro: R$ {{ '%.2f'|format(financial_balance)|replace('.', ',') }}</div>
     </article>
 </section>
 
 <section class="lower-grid">
     <article class="panel-card activity-panel">
-        <div class="panel-heading"><div><span class="eyebrow">MOVIMENTAÇÃO</span><h2>Atividade recente</h2></div><span class="tag tag-muted">Aguardando dados</span></div>
-        <div class="empty-state"><div class="empty-illustration"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="8" width="30" height="34" rx="5"/><path d="M17 18h14M17 25h14M17 32h8"/><path d="M17 8V5m14 3V5"/></svg></div><strong>Nenhuma atividade por enquanto</strong><p>As movimentações de estoque e vendas aparecerão aqui conforme forem registradas.</p></div>
+        <div class="panel-heading"><div><span class="eyebrow">MOVIMENTAÇÃO</span><h2>Atividade recente</h2></div><span class="tag tag-muted">{{ recent_events|length }} registro(s)</span></div>
+        {% if recent_events %}<ul class="dashboard-activity">{% for event in recent_events %}<li><strong>{{ event.title }}</strong><span>{{ event.description }}</span><time>{{ event.created_at.strftime('%d/%m/%Y %H:%M') }}</time></li>{% endfor %}</ul>{% else %}<div class="empty-state"><div class="empty-illustration"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="8" width="30" height="34" rx="5"/><path d="M17 18h14M17 25h14M17 32h8"/><path d="M17 8V5m14 3V5"/></svg></div><strong>Nenhuma atividade por enquanto</strong><p>As movimentações de estoque e vendas aparecerão aqui conforme forem registradas.</p></div>{% endif %}
     </article>
     <article class="panel-card roadmap-panel">
-        <div class="panel-heading"><div><span class="eyebrow">PRÓXIMOS PASSOS</span><h2>Construção do sistema</h2></div></div>
-        <ol class="roadmap">
-            <li class="roadmap-done"><span class="roadmap-marker"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 8 3 3 7-7"/></svg></span><div><strong>Estrutura e configuração</strong><small>Concluída agora</small></div><span class="tag tag-done">CONCLUÍDA</span></li>
-            <li><span class="roadmap-marker">2</span><div><strong>Autenticação segura</strong><small>Acesso protegido ao sistema</small></div></li>
-            <li class="roadmap-done"><span class="roadmap-marker"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 8 3 3 7-7"/></svg></span><div><strong>Produtos e estoque</strong><small>Catálogo e movimentações</small></div><span class="tag tag-done">DISPONÍVEL</span></li>
-            <li><span class="roadmap-marker">4</span><div><strong>Clientes e vendas</strong><small>Relacionamento e operação comercial</small></div></li>
-        </ol>
-        <div class="roadmap-note">As próximas etapas serão iniciadas conforme sua autorização.</div>
+        <div class="panel-heading"><div><span class="eyebrow">GESTÃO</span><h2>Acesso rápido</h2></div></div>
+        <ul class="dashboard-quick-links"><li><a href="{{ url_for('products.index') }}">Produtos e estoque <span>{{ product_count }} ativo(s)</span></a></li><li><a href="{{ url_for('customers.index') }}">Clientes <span>{{ customer_count }} ativo(s)</span></a></li><li><a href="{{ url_for('sales.index') }}">Vendas <span>{{ sales_count }} registrada(s)</span></a></li><li><a href="{{ url_for('finance.index') }}">Financeiro <span>Saldo R$ {{ '%.2f'|format(financial_balance)|replace('.', ',') }}</span></a></li><li><a href="{{ url_for('reports.index') }}">Relatórios <span>Consultar dados</span></a></li></ul>
     </article>
 </section>
 {% endblock %}

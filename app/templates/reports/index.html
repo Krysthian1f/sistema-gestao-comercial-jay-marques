@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Relatórios{% endblock %}
+{% block page_name %}Relatórios{% endblock %}
+{% block content %}
+<section class="module-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> CONSULTA E EXPORTAÇÃO</div><h1>Relatórios</h1><p class="page-intro">Consulte os registros do sistema e exporte os resultados em CSV.</p></div></section>
+<form class="panel-card report-filters" method="get"><label>Relatório<select class="form-select" name="tipo">{% for key, label in reports.items() %}<option value="{{ key }}" {% if report_type == key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label><label>De<input class="form-control" type="date" name="inicio" value="{{ start_date }}"></label><label>Até<input class="form-control" type="date" name="fim" value="{{ end_date }}"></label><button class="btn btn-primary" type="submit">Consultar</button></form>
+<section class="panel-card product-panel"><div class="report-table-heading"><div><span class="eyebrow">{{ report_title|upper }}</span><h2>{{ rows|length }} registro(s)</h2></div><a class="btn btn-outline-secondary" href="{{ csv_url }}">Exportar CSV</a></div><ul class="report-summary">{% for item in summary %}<li>{{ item }}</li>{% endfor %}</ul>{% if rows %}<div class="table-responsive"><table class="table product-table align-middle"><thead><tr>{% for header in headers %}<th>{{ header }}</th>{% endfor %}</tr></thead><tbody>{% for row in rows %}<tr>{% for value in row %}<td>{{ value }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty-state product-empty"><strong>Nenhum registro para este relatório</strong><p>Altere o período ou cadastre dados nos módulos correspondentes.</p></div>{% endif %}</section>
+{% endblock %}

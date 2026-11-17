@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Remover cliente{% endblock %}
+{% block page_name %}Remover cliente{% endblock %}
+{% block content %}
+<section class="module-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> CONFIRMAÇÃO</div><h1>Remover cliente</h1><p class="page-intro">Esta ação retira o cadastro das buscas e mantém os registros históricos.</p></div></section>
+<section class="panel-card confirm-card"><strong>Deseja remover {{ customer.name }}?</strong><p>O histórico relacionado será preservado para consulta.</p><form class="form-actions" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><a class="btn btn-outline-secondary" href="{{ url_for('customers.detail', customer_id=customer.id) }}">Cancelar</a><button class="btn btn-danger" type="submit">Confirmar remoção</button></form></section>
+{% endblock %}

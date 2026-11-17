@@ -63,3 +63,85 @@ class StockMovement(db.Model):
     reason = db.Column(db.String(240), nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc), index=True)
     product = db.relationship("Product", back_populates="movements")
+
+
+class Customer(db.Model):
+    __tablename__ = "customers"
+    __table_args__ = (
+        Index("ix_customers_active_name", "is_active", "name"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), nullable=False, index=True)
+    phone = db.Column(db.String(30), nullable=False)
+    normalized_phone = db.Column(db.String(15), nullable=False, unique=True)
+    email = db.Column(db.String(254), nullable=False, default="")
+    notes = db.Column(db.Text, nullable=False, default="")
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    sales = db.relationship("Sale", back_populates="customer", lazy="select")
+
+
+class Sale(db.Model):
+    __tablename__ = "sales"
+    __table_args__ = (
+        CheckConstraint("total_amount >= 0", name="ck_sale_total_nonnegative"),
+        db.CheckConstraint(
+            "payment_method IN ('dinheiro', 'pix', 'cartao_credito', 'cartao_debito', 'transferencia')",
+            name="ck_sale_payment_method",
+        ),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(20), unique=True, nullable=False, index=True)
+    idempotency_key = db.Column(db.String(36), unique=True, nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey("customers.id", ondelete="RESTRICT"), nullable=True, index=True)
+    customer_name = db.Column(db.String(120), nullable=False, default="Consumidor não identificado")
+    payment_method = db.Column(db.String(20), nullable=False)
+    total_amount = db.Column(db.Numeric(12, 2), nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc), index=True)
+    customer = db.relationship("Customer", back_populates="sales")
+    items = db.relationship("SaleItem", back_populates="sale", lazy="select", cascade="all, delete-orphan", order_by="SaleItem.id")
+
+
+class SaleItem(db.Model):
+    __tablename__ = "sale_items"
+    __table_args__ = (
+        CheckConstraint("quantity > 0", name="ck_sale_item_quantity_positive"),
+        CheckConstraint("unit_price >= 0", name="ck_sale_item_price_nonnegative"),
+        CheckConstraint("unit_cost >= 0", name="ck_sale_item_cost_nonnegative"),
+        CheckConstraint("subtotal >= 0", name="ck_sale_item_subtotal_nonnegative"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    sale_id = db.Column(db.Integer, db.ForeignKey("sales.id", ondelete="CASCADE"), nullable=False, index=True)
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id", ondelete="RESTRICT"), nullable=False, index=True)
+    product_code = db.Column(db.String(20), nullable=False)
+    product_name = db.Column(db.String(120), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    unit_price = db.Column(db.Numeric(12, 2), nullable=False)
+    unit_cost = db.Column(db.Numeric(12, 2), nullable=False)
+    subtotal = db.Column(db.Numeric(12, 2), nullable=False)
+    stock_movement_id = db.Column(db.Integer, db.ForeignKey("stock_movements.id", ondelete="RESTRICT"), nullable=False, unique=True)
+    sale = db.relationship("Sale", back_populates="items")
+    product = db.relationship("Product", lazy="joined")
+    stock_movement = db.relationship("StockMovement", lazy="joined")
+
+
+class FinancialEntry(db.Model):
+    __tablename__ = "financial_entries"
+    __table_args__ = (
+        db.CheckConstraint("kind IN ('receita', 'despesa')", name="ck_financial_entry_kind"),
+        CheckConstraint("amount >= 0", name="ck_financial_entry_amount_nonnegative"),
+        Index("ix_financial_entries_kind_occurred", "kind", "occurred_at"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    kind = db.Column(db.String(10), nullable=False)
+    category = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.String(240), nullable=False)
+    amount = db.Column(db.Numeric(12, 2), nullable=False)
+    occurred_at = db.Column(db.DateTime(timezone=True), nullable=False, index=True)
+    sale_id = db.Column(db.Integer, db.ForeignKey("sales.id", ondelete="RESTRICT"), nullable=True, unique=True)
+    idempotency_key = db.Column(db.String(36), nullable=True, unique=True)
+    sale = db.relationship("Sale", backref=db.backref("financial_entry", uselist=False))

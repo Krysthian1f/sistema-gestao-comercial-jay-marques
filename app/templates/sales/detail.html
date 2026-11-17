@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block title %}Venda {{ sale.code }}{% endblock %}
+{% block page_name %}Detalhes da venda{% endblock %}
+{% block content %}
+<section class="module-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> VENDA REGISTRADA</div><h1>{{ sale.code }}</h1><p class="page-intro">{{ sale.created_at.strftime('%d/%m/%Y %H:%M') }} · {{ sale.customer_name }} · {{ payment_label }}</p></div><a class="btn btn-outline-secondary" href="{{ url_for('sales.index') }}">Voltar às vendas</a></section>
+<section class="panel-card product-panel"><div class="table-responsive"><table class="table product-table align-middle"><thead><tr><th>Produto</th><th>Quantidade</th><th>Preço unitário</th><th>Subtotal</th></tr></thead><tbody>{% for item in sale.items %}<tr><td><strong>{{ item.product_name }}</strong><small>{{ item.product_code }}</small></td><td>{{ item.quantity }}</td><td>R$ {{ '%.2f'|format(item.unit_price)|replace('.', ',') }}</td><td>R$ {{ '%.2f'|format(item.subtotal)|replace('.', ',') }}</td></tr>{% endfor %}</tbody></table></div><div class="sale-total">Total da venda: <strong>R$ {{ '%.2f'|format(sale.total_amount)|replace('.', ',') }}</strong></div></section>
+{% endblock %}
