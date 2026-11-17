@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_name %}{{ title }}{% endblock %}
+{% block content %}
+<section class="module-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> RELACIONAMENTO</div><h1>{{ title }}</h1><p class="page-intro">Informe os dados de contato. O telefone é usado para evitar cadastros duplicados.</p></div><a class="btn btn-outline-secondary" href="{{ url_for('customers.index') }}">Voltar aos clientes</a></section>
+<form class="panel-card product-form" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><div class="form-grid">
+<label>Nome completo *<input class="form-control" name="name" maxlength="120" autocomplete="name" required value="{{ values.get('name', customer.name if customer else '') }}"></label>
+<label>Telefone com DDD *<input class="form-control" type="tel" name="phone" maxlength="30" autocomplete="tel" placeholder="(11) 99999-9999" required value="{{ values.get('phone', customer.phone if customer else '') }}"></label>
+<label class="form-wide">E-mail<input class="form-control" type="email" name="email" maxlength="254" autocomplete="email" value="{{ values.get('email', customer.email if customer else '') }}"></label>
+<label class="form-wide">Observações<textarea class="form-control" name="notes" rows="4" maxlength="2000">{{ values.get('notes', customer.notes if customer else '') }}</textarea></label>
+</div><div class="form-actions"><a class="btn btn-outline-secondary" href="{{ url_for('customers.index') }}">Cancelar</a><button class="btn btn-primary" type="submit">{{ 'Salvar alterações' if customer else 'Cadastrar cliente' }}</button></div></form>
+{% endblock %}

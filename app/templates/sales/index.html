@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Vendas{% endblock %}
+{% block page_name %}Vendas{% endblock %}
+{% block content %}
+<section class="module-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> OPERAÇÃO COMERCIAL</div><h1>Vendas</h1><p class="page-intro">Registre pedidos e acompanhe as vendas realizadas.</p></div><a class="btn btn-primary" href="{{ url_for('sales.create') }}">+ Registrar venda</a></section>
+<section class="panel-card product-panel">
+{% if sales %}<div class="table-responsive"><table class="table product-table align-middle"><thead><tr><th>Venda</th><th>Cliente</th><th>Data</th><th>Pagamento</th><th>Total</th><th><span class="visually-hidden">Ação</span></th></tr></thead><tbody>{% for sale in sales %}<tr><td><a class="product-name" href="{{ url_for('sales.detail', sale_id=sale.id) }}">{{ sale.code }}</a><small>{{ sale.items|length }} item(ns)</small></td><td>{{ sale.customer_name }}</td><td>{{ sale.created_at.strftime('%d/%m/%Y %H:%M') }}</td><td>{{ sale.payment_method|replace('_', ' ')|capitalize }}</td><td>R$ {{ '%.2f'|format(sale.total_amount)|replace('.', ',') }}</td><td><a class="table-action" href="{{ url_for('sales.detail', sale_id=sale.id) }}">Abrir</a></td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="empty-state product-empty"><strong>Nenhuma venda registrada</strong><p>Quando você registrar uma venda, ela aparecerá neste histórico.</p><a class="btn btn-primary btn-sm mt-2" href="{{ url_for('sales.create') }}">Registrar primeira venda</a></div>{% endif %}
+</section>
+{% endblock %}

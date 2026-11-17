@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Registrar venda{% endblock %}
+{% block page_name %}Registrar venda{% endblock %}
+{% block content %}
+<section class="module-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span> NOVA VENDA</div><h1>Registrar venda</h1><p class="page-intro">Informe as quantidades. Os preços e a baixa do estoque são calculados no servidor.</p></div><a class="btn btn-outline-secondary" href="{{ url_for('sales.index') }}">Voltar às vendas</a></section>
+<form class="panel-card sale-form" method="post"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="idempotency_key" value="{{ idempotency_key }}">
+<div class="form-grid"><label>Cliente<select class="form-select" name="customer_id"><option value="">Consumidor não identificado</option>{% for customer in customers %}<option value="{{ customer.id }}">{{ customer.name }} · {{ customer.phone }}</option>{% endfor %}</select></label><label>Forma de pagamento<select class="form-select" name="payment_method" required>{% for code, label in payment_methods.items() %}<option value="{{ code }}">{{ label }}</option>{% endfor %}</select></label></div>
+<h2 class="sale-products-title">Produtos</h2>
+{% if products %}<div class="table-responsive"><table class="table product-table align-middle"><thead><tr><th>Produto</th><th>Disponível</th><th>Preço unitário</th><th>Quantidade</th></tr></thead><tbody>{% for product in products %}<tr><td><strong>{{ product.name }}</strong><small>{{ product.code }}</small></td><td>{{ product.stock_quantity }}</td><td>R$ {{ '%.2f'|format(product.selling_price)|replace('.', ',') }}</td><td><label class="visually-hidden" for="quantity-{{ product.id }}">Quantidade de {{ product.name }}</label><input class="form-control sale-quantity" id="quantity-{{ product.id }}" type="number" name="quantity_{{ product.id }}" min="0" max="{{ product.stock_quantity }}" step="1" value="0" data-price="{{ product.selling_price }}"></td></tr>{% endfor %}</tbody></table></div><div class="sale-total">Total estimado: <strong id="sale-total">R$ 0,00</strong><span>O total definitivo é calculado no servidor.</span></div>{% else %}<div class="empty-inline">Não há produtos ativos com estoque disponível. Cadastre um produto ou registre uma entrada antes de vender.</div>{% endif %}
+<div class="form-actions"><a class="btn btn-outline-secondary" href="{{ url_for('sales.index') }}">Cancelar</a><button class="btn btn-primary" type="submit" {% if not products %}disabled{% endif %}>Confirmar venda</button></div></form>
+<script>
+document.querySelectorAll(".sale-quantity").forEach((input) => input.addEventListener("input", () => {
+    let total = 0;
+    document.querySelectorAll(".sale-quantity").forEach((field) => {
+        total += Math.max(0, Number(field.value) || 0) * Number(field.dataset.price);
+    });
+    document.getElementById("sale-total").textContent = total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}));
+</script>
+{% endblock %}

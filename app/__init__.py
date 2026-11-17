@@ -8,9 +8,11 @@ from pathlib import Path
 import click
 from flask import Flask, abort, request, session
 from flask_login import current_user
+from sqlalchemy import event, text
 from werkzeug.security import generate_password_hash
 
 from app.extensions import db, login_manager
+from app.timeutils import format_brasilia_date, format_brasilia_datetime
 
 
 def _load_or_create_secret_key(instance_path: Path) -> str:
@@ -37,11 +39,21 @@ def create_app(test_config: dict | None = None) -> Flask:
     Path(app.instance_path).mkdir(parents=True, exist_ok=True)
 
     app.config.from_object("config.Config")
+    app.add_template_filter(format_brasilia_date, "data_br")
+    app.add_template_filter(format_brasilia_datetime, "data_hora_br")
     if test_config is not None:
         app.config.update(test_config)
-    app.config["SECRET_KEY"] = app.config.get("SECRET_KEY") or _load_or_create_secret_key(
-        Path(app.instance_path)
-    )
+    if not app.config.get("SECRET_KEY"):
+        if app.config.get("IS_PRODUCTION"):
+            raise RuntimeError("Configure SECRET_KEY como variável de ambiente antes de iniciar em produção.")
+        app.config["SECRET_KEY"] = _load_or_create_secret_key(Path(app.instance_path))
+
+    if app.config.get("IS_PRODUCTION") and app.config["SQLALCHEMY_DATABASE_URI"].startswith("sqlite:"):
+        if not os.environ.get("SQLITE_DATA_DIR"):
+            raise RuntimeError(
+                "Em produção, configure DATABASE_URL para PostgreSQL ou SQLITE_DATA_DIR em um disco persistente."
+            )
+        Path(os.environ["SQLITE_DATA_DIR"]).mkdir(parents=True, exist_ok=True)
 
     db.init_app(app)
     login_manager.init_app(app)
@@ -64,7 +76,7 @@ def create_app(test_config: dict | None = None) -> Flask:
             and current_user.is_active
             and current_user.is_admin
         )
-        if request.endpoint != "auth.login" and not owner_authenticated:
+        if request.endpoint not in {"auth.login", "health"} and not owner_authenticated:
             return login_manager.unauthorized()
         if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
             supplied = request.form.get("csrf_token", "")
@@ -82,21 +94,51 @@ def create_app(test_config: dict | None = None) -> Flask:
         except (TypeError, ValueError):
             return None
 
-    from app.models import Product, StockMovement, User  # noqa: F401
+    from app.models import Customer, FinancialEntry, Product, Sale, SaleItem, StockMovement, User  # noqa: F401
     from app.auth import auth
     from app.dashboard import dashboard
     from app.products import products
     from app.inventory import inventory
+    from app.customers import customers
+    from app.sales import sales
+    from app.finance import finance
+    from app.reports import reports
 
     app.register_blueprint(auth)
     app.register_blueprint(dashboard)
     app.register_blueprint(products)
     app.register_blueprint(inventory)
+    app.register_blueprint(customers)
+    app.register_blueprint(sales)
+    app.register_blueprint(finance)
+    app.register_blueprint(reports)
+
+    @app.get("/health")
+    def health():
+        from flask import jsonify
+
+        try:
+            db.session.execute(text("SELECT 1"))
+            db.session.rollback()
+        except Exception:
+            db.session.rollback()
+            return jsonify(status="unavailable", database="unavailable"), 503
+        return jsonify(status="ok", database="available"), 200
 
     with app.app_context():
-        # Open once so SQLite creates its local file even before feature tables exist.
+        if db.engine.dialect.name == "sqlite":
+            @event.listens_for(db.engine, "connect")
+            def enable_sqlite_foreign_keys(connection, _connection_record):
+                cursor = connection.cursor()
+                cursor.execute("PRAGMA foreign_keys=ON")
+                cursor.close()
+
+        # Validate the configured database connection before serving requests.
         db.engine.connect().close()
-        db.create_all()
+        # Local development and tests may create their isolated schema automatically.
+        # Production schema creation is explicit through init_neon_db.py after validation.
+        if not app.config.get("IS_PRODUCTION") or app.config.get("AUTO_CREATE_DB", False):
+            db.create_all()
 
     @app.cli.command("create-admin")
     def create_admin_command():

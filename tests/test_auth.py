@@ -74,7 +74,7 @@ def test_login_sem_token_csrf_e_recusado(anonymous_client):
 
 
 def test_rotas_internas_exigem_autenticacao(anonymous_client):
-    paths = ["/", "/products/", "/products/novo", "/products/999999", "/products/999999/editar", "/products/999999/excluir"]
+    paths = ["/", "/products/", "/products/novo", "/products/999999", "/products/999999/editar", "/products/999999/excluir", "/customers/", "/sales/", "/finance/", "/reports/"]
     for path in paths:
         response = anonymous_client.get(path)
         assert response.status_code == 302, path
@@ -153,4 +153,6 @@ def test_comando_nao_cria_outra_conta_se_a_senha_for_curta(app, monkeypatch):
     assert "pelo menos 12 caracteres" in result.output
     with app.app_context():
         assert db.session.scalar(db.select(db.func.count()).select_from(User)) == 0
-        assert set(inspect(db.engine).get_table_names()) == {"products", "stock_movements", "users"}
+        assert set(inspect(db.engine).get_table_names()) == {
+            "customers", "financial_entries", "products", "sale_items", "sales", "stock_movements", "users"
+        }
