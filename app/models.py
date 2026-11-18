@@ -1,12 +1,17 @@
 from datetime import datetime, timezone
 
 from sqlalchemy import CheckConstraint, Index
-from flask_login import UserMixin
 
 from app.extensions import db
 
 
-class User(UserMixin, db.Model):
+class User(db.Model):
+    """Mantida apenas para preservar a tabela ``users`` já existente.
+
+    O sistema não usa mais autenticação: esta tabela não é consultada para
+    liberar acesso e nenhum registro dela é alterado pela aplicação.
+    """
+
     __tablename__ = "users"
     __table_args__ = (CheckConstraint("failed_login_attempts >= 0", name="ck_user_failed_login_nonnegative"),)
 

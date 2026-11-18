@@ -25,7 +25,7 @@ def test_fabrica_sem_test_config_usa_sqlite_temporario(monkeypatch, tmp_path: Pa
         assert application.config["SECRET_KEY"] == "chave-do-modo-padrao"
 
         with application.test_client() as client:
-            response = client.get("/login")
+            response = client.get("/")
 
         assert response.status_code == 200
         with application.app_context():
@@ -37,15 +37,14 @@ def test_fabrica_sem_test_config_usa_sqlite_temporario(monkeypatch, tmp_path: Pa
             db.engine.dispose()
 
 
-def test_sessao_com_usuario_nao_encontrado_exige_novo_login(client):
+def test_sessao_antiga_nao_impede_acesso(client):
     with client.session_transaction() as session:
         session["_user_id"] = "usuario-inexistente"
         session["_fresh"] = True
 
     response = client.get("/")
 
-    assert response.status_code == 302
-    assert response.headers["Location"].split("?", 1)[0].endswith("/login")
+    assert response.status_code == 200
 
 
 def test_arquivo_css_estatico_e_servido(client):
@@ -58,8 +57,8 @@ def test_arquivo_css_estatico_e_servido(client):
 
 def test_dashboard_recusa_metodo_post(client):
     with client.session_transaction() as session:
-        token = session["csrf_token"]
-    response = client.post("/", data={"csrf_token": token})
+        session["csrf_token"] = "token-de-teste"
+    response = client.post("/", data={"csrf_token": "token-de-teste"})
 
     assert response.status_code == 405
 

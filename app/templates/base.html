@@ -67,12 +67,6 @@
                 <span class="visually-hidden" data-a11y-status aria-live="polite" aria-atomic="true"></span>
                 <span class="topbar-date">{{ today }}</span>
                 <span class="avatar" aria-hidden="true">JM</span>
-                <form class="logout-form" method="post" action="{{ url_for('auth.logout') }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button class="logout-button" type="submit" aria-label="Sair da conta de {{ current_user.username }}" title="Sair da conta">
-                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5m5 5H3m9-9h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/></svg><span>Sair</span>
-                    </button>
-                </form>
             </div>
         </header>
 

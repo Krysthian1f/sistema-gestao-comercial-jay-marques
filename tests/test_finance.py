@@ -192,8 +192,6 @@ def test_filtro_financeiro_recusa_datas_invalidas_e_periodo_invertido(client):
     assert "data inicial deve ser anterior" in reversed_range.get_data(as_text=True)
 
 
-def test_rotas_financeiras_exigem_login(anonymous_client):
+def test_rotas_financeiras_abrem_sem_login(anonymous_client):
     for path in ("/finance/", "/finance/novo"):
-        response = anonymous_client.get(path)
-        assert response.status_code == 302
-        assert response.headers["Location"].split("?", 1)[0].endswith("/login")
+        assert anonymous_client.get(path).status_code == 200, path

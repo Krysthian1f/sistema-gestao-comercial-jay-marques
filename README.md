@@ -4,13 +4,12 @@ Aplicação web em português brasileiro para apoiar a gestão comercial da Jay 
 
 ## Objetivo
 
-Reunir as operações comerciais em uma interface responsiva, com acesso administrativo protegido, registros integrados e dados persistidos.
+Reunir as operações comerciais em uma interface responsiva, com acesso direto ao painel (sem login), registros integrados e dados persistidos.
 
 ## Funcionalidades disponíveis
 
-- Login administrativo exclusivo, sem cadastro público de usuários.
-- Senhas armazenadas somente como hash; criação inicial da conta por prompt oculto no terminal.
-- Proteção de rotas internas, token CSRF em operações de escrita e bloqueio temporário após cinco tentativas inválidas.
+- Acesso direto ao painel, sem tela de login, sem usuário e sem senha.
+- Token CSRF em todas as operações de escrita (POST/PUT/PATCH/DELETE).
 - Cadastro, pesquisa, edição e remoção confirmada de produtos.
 - Código sequencial automático, categoria, descrição, preços, saldo e estoque mínimo.
 - Registro de entradas e saídas com motivo, histórico de movimentações e bloqueio de saídas acima do saldo.
@@ -24,12 +23,12 @@ Reunir as operações comerciais em uma interface responsiva, com acesso adminis
 - Temas claro e escuro, controles de fonte, suporte a teclado e rótulos para leitores de tela.
 - Interface responsiva com a logomarca Marques Stores fornecida para o projeto.
 
-O sistema não oferece recuperação automática de senha, pois ainda não há canal verificado de e-mail ou telefone configurado. Os lançamentos financeiros são registros auditáveis e não podem ser editados ou excluídos pela interface.
+O sistema não possui autenticação: qualquer pessoa com acesso à URL entra diretamente no painel. Por isso, mantenha o endereço restrito a pessoas de confiança e não o divulgue publicamente. Os lançamentos financeiros são registros auditáveis e não podem ser editados ou excluídos pela interface.
 
 ## Tecnologias
 
 - Python 3.12.
-- Flask, Flask-Login, Flask-SQLAlchemy e SQLAlchemy.
+- Flask, Flask-SQLAlchemy e SQLAlchemy.
 - SQLite no ambiente local e PostgreSQL como opção recomendada para produção.
 - Gunicorn e psycopg 3 para execução no Render com PostgreSQL Neon.
 - HTML, CSS, JavaScript e Bootstrap 5.
@@ -39,7 +38,6 @@ O sistema não oferece recuperação automática de senha, pois ainda não há c
 
 ```text
 app/
-├── auth/                 # Login, logout e autenticação administrativa
 ├── customers/            # Cadastro e consulta de clientes
 ├── dashboard/            # Dashboard e indicadores reais
 ├── finance/              # Receitas, despesas e resumo financeiro
@@ -50,7 +48,7 @@ app/
 ├── static/
 │   ├── css/              # Identidade visual, temas e responsividade
 │   ├── img/              # Logomarca fornecida
-│   └── js/               # Menu, preferências acessíveis e senha visível
+│   └── js/               # Menu e preferências acessíveis
 └── templates/            # Telas do sistema
 config.py                 # Configuração Flask, SQLite e PostgreSQL
 run.py                    # Inicialização local
@@ -72,15 +70,10 @@ py -3.12 -m venv .venv
 python -m pip install -r requirements.txt
 ```
 
-### Criar a conta administrativa
+### Acesso ao sistema
 
-Na primeira execução, crie a única conta administrativa:
-
-```powershell
-python -m flask --app run.py create-admin
-```
-
-O comando usa o nome de usuário `vida` e solicita a senha duas vezes, sem exibi-la no terminal. A senha precisa ter pelo menos 12 caracteres e é salva no SQLite somente como hash. O comando não cria outra conta nem redefine uma conta existente. Não há cadastro público.
+O sistema abre diretamente no painel. Não existe tela de login, conta administrativa,
+usuário ou senha.
 
 ### Executar
 
@@ -88,11 +81,11 @@ O comando usa o nome de usuário `vida` e solicita a senha duas vezes, sem exibi
 python run.py
 ```
 
-Abra [http://127.0.0.1:5000/login](http://127.0.0.1:5000/login) e entre com o usuário `vida` e a senha definida no passo anterior. Após cinco tentativas inválidas, o acesso fica bloqueado por 15 minutos.
+Abra [http://127.0.0.1:5000/](http://127.0.0.1:5000/) e use o sistema diretamente.
 
 ## Configuração de segurança
 
-No ambiente local HTTP, o cookie `Secure` fica desativado para permitir a sessão em `localhost`. Em produção, use HTTPS, defina uma chave `SECRET_KEY` aleatória e estável por variável de ambiente e configure `SESSION_COOKIE_SECURE=1`. Nunca publique `.env`, chaves, senhas ou a pasta `instance/`.
+No ambiente local HTTP, o cookie `Secure` fica desativado para permitir a sessão em `localhost`. Em produção, use HTTPS, defina uma chave `SECRET_KEY` aleatória e estável por variável de ambiente e configure `SESSION_COOKIE_SECURE=1`. A sessão é usada apenas para o token CSRF, não para autenticação. Nunca publique `.env`, chaves, senhas ou a pasta `instance/`.
 
 O SQLite local fica em `instance/` e é ignorado pelo Git. A inicialização cria tabelas ausentes sem apagar registros existentes. Os testes utilizam bancos temporários e não acessam o banco local.
 
@@ -139,23 +132,13 @@ Confira o host, o database e a lista de tabelas ausentes; digite `CRIAR TABELAS 
 python init_neon_db.py --preflight-only
 ```
 
-### Criar a conta administradora
-
-Depois de o esquema Neon estar pronto, execute o comando em um ambiente interativo com `DATABASE_URL` apontando para o Neon e `SECRET_KEY` configurada:
-
-```powershell
-python -m flask --app run.py create-admin
-```
-
-O comando solicita e confirma a senha sem exibi-la, cria o usuário `vida` com hash de senha e recusa continuar se já houver qualquer conta. Não passe a senha como argumento nem a inclua em logs ou código. Não existe cadastro público.
-
 ### Passos para publicar
 
 1. No Render, conecte o repositório GitHub Jay Marques e escolha a branch e a raiz corretas.
 2. Use o Blueprint existente para carregar `render.yaml`; confira runtime, comandos e health check antes de criar o serviço.
 3. Informe `DATABASE_URL` como secret do Render. Confirme também `APP_ENV`, `SECRET_KEY` e `SESSION_COOKIE_SECURE` no painel.
-4. Antes de depender da aplicação, confirme que o database Neon contém as tabelas e a conta administrativa necessárias.
-5. Revise as mudanças e inicie o deploy manualmente. Depois, verifique `/health` e `/login` no endereço do serviço.
+4. Antes de depender da aplicação, confirme que o database Neon contém as tabelas necessárias.
+5. Revise as mudanças e inicie o deploy manualmente. Depois, verifique `/health` e `/` no endereço do serviço.
 
 Consulte a documentação oficial do [Blueprint YAML](https://render.com/docs/blueprint-spec), [variáveis e secrets](https://render.com/docs/configure-environment-variables), [versão do Python](https://render.com/docs/python-version), [health checks](https://render.com/docs/health-checks) e [deploy de Flask](https://render.com/docs/deploy-flask). Para Neon, consulte [conexões PostgreSQL](https://neon.com/docs/connect/connect-from-any-app) e [SQLAlchemy](https://neon.com/docs/guides/sqlalchemy).
 
