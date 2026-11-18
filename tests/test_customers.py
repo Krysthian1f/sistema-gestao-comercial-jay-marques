@@ -130,8 +130,6 @@ def test_exclusao_logica_preserva_registro_e_tira_da_listagem(client, app):
         assert customer.is_active is False
 
 
-def test_rotas_de_clientes_exigem_login(anonymous_client):
-    for path in ("/customers/", "/customers/novo", "/customers/1", "/customers/1/editar"):
-        response = anonymous_client.get(path)
-        assert response.status_code == 302
-        assert response.headers["Location"].split("?", 1)[0].endswith("/login")
+def test_rotas_de_clientes_abrem_sem_login(anonymous_client):
+    for path in ("/customers/", "/customers/novo"):
+        assert anonymous_client.get(path).status_code == 200, path

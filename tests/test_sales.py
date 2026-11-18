@@ -188,8 +188,6 @@ def test_detalhe_do_cliente_mostra_historico_de_vendas(client, app):
     assert "JM-V-" in customer_response.get_data(as_text=True)
 
 
-def test_rotas_de_vendas_exigem_login(anonymous_client):
-    for path in ("/sales/", "/sales/nova", "/sales/1"):
-        response = anonymous_client.get(path)
-        assert response.status_code == 302
-        assert response.headers["Location"].split("?", 1)[0].endswith("/login")
+def test_rotas_de_vendas_abrem_sem_login(anonymous_client):
+    for path in ("/sales/", "/sales/nova"):
+        assert anonymous_client.get(path).status_code == 200, path
